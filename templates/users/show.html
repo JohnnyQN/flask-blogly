@@ -6,9 +6,9 @@
 
 <div class="row">
 
-  {% if user.image_url %}
+  {% if user.profile_picture %}
   <div class="col-sm-2 col-6">
-    <img src="{{ user.image_url }}"
+    <img src="{{ user.profile_picture }}"
          alt="{{ user.full_name }}"
          class="img-fluid">
   </div>
@@ -28,6 +28,14 @@
       </button>
     </form>
 
+    <h3>Posts</h3>
+    <ul>
+        {% for post in user.posts %}
+        <li><a href="{{ url_for('show_post', post_id=post.id) }}">{{ post.title }}</a></li>
+        {% endfor %}
+    </ul>
+
+    <a href="{{ url_for('add_post', user_id=user.id) }}" class="btn btn-success">Add Post</a>
   </div>
 </div>
 
