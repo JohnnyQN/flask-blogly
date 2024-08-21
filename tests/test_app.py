@@ -1,30 +1,43 @@
 import pytest
-from app import app, db, User, Post
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
 
-@pytest.fixture
-def client():
+# Assuming you have app and db setup
+app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://user:password@localhost/test_db'
+db = SQLAlchemy(app)
+
+@pytest.fixture(scope='function')
+def test_client():
     app.config['TESTING'] = True
-    app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql:///test_blogly"
-    app.config['DEBUG_TB_ENABLED'] = False
     with app.test_client() as client:
         with app.app_context():
-            db.create_all()
+            db.create_all()  # Create tables before each test
         yield client
         with app.app_context():
-            db.drop_all()
+            db.drop_all()  # Drop tables after each test
 
-def test_homepage(client):
-    """Test the homepage redirects to the list of users."""
-    response = client.get('/')
-    assert response.status_code == 302  # Check for redirect
-    response = client.get(response.location)  # Follow the redirect
-    assert b'Blogly &ndash; Users' in response.data  # Match the exact title from HTML
+def test_create_tag(test_client):
+    response = test_client.post('/tags/new', data={'name': 'Technology'})
+    assert b'Tag \'Technology\' added.' in response.data
 
-def test_user_creation(client):
-    """Test creating a new user."""
-    response = client.post('/users/new', data={
-        'first_name': 'John',
-        'last_name': 'Doe',
-        'profile_picture': 'http://example.com/image.png'
-    }, follow_redirects=True)  # Follow redirect if needed
-    assert b'John Doe' in response.data  # Assuming the user is displayed on the users list
+def test_view_tag(test_client):
+    tag = Tag(name='Science')
+    db.session.add(tag)
+    db.session.commit()
+    response = test_client.get('/tags/1')  # Adjust URL as needed
+    assert b'Science' in response.data
+
+def test_edit_tag(test_client):
+    tag = Tag(name='Health')
+    db.session.add(tag)
+    db.session.commit()
+    response = test_client.post('/tags/edit/1', data={'name': 'Wellness'})
+    assert b'Tag updated to Wellness' in response.data
+
+def test_delete_tag(test_client):
+    tag = Tag(name='Travel')
+    db.session.add(tag)
+    db.session.commit()
+    response = test_client.post('/tags/delete/1')
+    assert b'Tag deleted.' in response.data
