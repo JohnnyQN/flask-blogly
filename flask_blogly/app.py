@@ -2,8 +2,9 @@ from flask import Flask, render_template, request, redirect, flash
 from flask_blogly.models import db, User, Post, Tag, PostTag
 from flask_migrate import Migrate
 
-# Configuration
-SQLALCHEMY_DATABASE_URI = 'postgresql://johnny:Springboard2024$!@localhost/blogly'
+import os
+SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', 'postgresql:///your_default_db')
+
 
 app = Flask(__name__, template_folder="templates")
 app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
