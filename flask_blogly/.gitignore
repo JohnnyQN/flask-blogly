@@ -1,0 +1,17 @@
+# Python and Flask-specific files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+venv/
+.env
+.pytest_cache/
+*.db
+*.sqlite
+
+# IDE and OS-specific files
+.vscode/
+.idea/
+.DS_Store
+.env
+.env
