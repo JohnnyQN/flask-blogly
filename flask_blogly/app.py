@@ -1,14 +1,17 @@
 from flask import Flask, render_template, request, redirect, flash
 from flask_blogly.models import db, User, Post, Tag, PostTag
 from flask_migrate import Migrate
-
+from dotenv import load_dotenv
 import os
-SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', 'postgresql:///your_default_db')
 
+# Load environment variables from .env file
+load_dotenv()
 
 app = Flask(__name__, template_folder="templates")
-app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
-app.config['SECRET_KEY'] = 'your_secret_key'
+
+# Get database URL from environment variable or use default
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'postgresql:///blogly')
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your_secret_key')
 
 # Initialize extensions
 db.init_app(app)
@@ -117,3 +120,4 @@ def create_post(user_id):
 
 if __name__ == '__main__':
     app.run(debug=True)
+d
